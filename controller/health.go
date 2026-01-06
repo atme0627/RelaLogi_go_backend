@@ -11,10 +11,10 @@ type HealthResponse struct {
 	Message string `json:"message"`
 }
 
-func New() *HealthController {
+func NewHealthController() *HealthController {
 	return &HealthController{}
 }
 
-func (c *HealthController) get(ctx *context.Context) (HealthResponse, error) {
+func (c *HealthController) Get(ctx context.Context) (HealthResponse, error) {
 	return HealthResponse{Message: "ok"}, nil
 }
