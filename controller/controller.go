@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -14,5 +13,10 @@ func New() *Controller {
 
 // 一旦、net/httpへの依存は気にしない。
 func (c *Controller) Health(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ok")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err := w.Write([]byte(`{"status":"ok"}`))
+	if err != nil {
+		return
+	}
 }
