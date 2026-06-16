@@ -24,22 +24,27 @@ type Quad struct {
 
 func (q *Quad) SortClockwiseFromTopLeft() {
 	var topLeft, topRight, bottomRight, bottomLeft Point
-	var maxSum, minSum, maxDiff, minDiff int
+	maxSum := 0
+	minSum := math.MaxInt64
+	maxDiff := 0
+	minDiff := math.MaxInt64
+
 	for _, p := range []Point{q.P1, q.P2, q.P3, q.P4} {
 		sum := p.X + p.Y
 		diff := p.Y - p.X
 		if sum > maxSum {
 			maxSum = sum
 			bottomRight = p
-		} else if sum < minSum {
+		}
+		if sum < minSum {
 			minSum = sum
 			topLeft = p
 		}
-
 		if diff > maxDiff {
 			maxDiff = diff
 			bottomLeft = p
-		} else if diff < minDiff {
+		}
+		if diff < minDiff {
 			minDiff = diff
 			topRight = p
 		}

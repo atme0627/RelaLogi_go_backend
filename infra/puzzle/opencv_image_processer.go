@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"bytes"
 	"image"
 
 	"github.com/atme0627/RelaLogi_go_backend/entity"
@@ -67,11 +68,11 @@ func (o OpenCVImageProcessor) CropHintsFromImage(img entity.EncodedImage, vHintQ
 	}
 	defer hBuf.Close()
 
-	vCroppedImage, err := entity.NewEncodedImage(vBuf.GetBytes(), img.MimeTypes)
+	vCroppedImage, err := entity.NewEncodedImage(bytes.Clone(vBuf.GetBytes()), img.MimeTypes)
 	if err != nil {
 		return entity.EncodedImage{}, entity.EncodedImage{}, err
 	}
-	hCroppedImage, err := entity.NewEncodedImage(hBuf.GetBytes(), img.MimeTypes)
+	hCroppedImage, err := entity.NewEncodedImage(bytes.Clone(hBuf.GetBytes()), img.MimeTypes)
 	if err != nil {
 		return entity.EncodedImage{}, entity.EncodedImage{}, err
 	}
