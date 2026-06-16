@@ -8,22 +8,22 @@ import (
 )
 
 type PuzzleInteractor struct {
-	imageProcesser port.ImageProcesser
+	imageProcessor port.ImageProcessor
 	ocr            port.OCR
 }
 
-func New(imageProcesser port.ImageProcesser, ocr port.OCR) *PuzzleInteractor {
-	return &PuzzleInteractor{imageProcesser: imageProcesser, ocr: ocr}
+func New(imageProcesser port.ImageProcessor, ocr port.OCR) *PuzzleInteractor {
+	return &PuzzleInteractor{imageProcessor: imageProcesser, ocr: ocr}
 }
 
 func (i PuzzleInteractor) FromImage(ctx context.Context, image entity.EncodedImage, vHintQuad entity.Quad, hHintQuad entity.Quad, size entity.PuzzleSize) (*entity.Puzzle, [2]entity.EncodedImage, error) {
-	vHintImage, hHintImage, err := i.imageProcesser.CropHintsFromImage(image, vHintQuad, hHintQuad)
+	vHintImage, hHintImage, err := i.imageProcessor.CropHintsFromImage(image, vHintQuad, hHintQuad)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
 	}
 
-	vHintCells := i.imageProcesser.SplitHintToCells(vHintImage, size)
-	hHintCells := i.imageProcesser.SplitHintToCells(hHintImage, size)
+	vHintCells := i.imageProcessor.SplitHintToCells(vHintImage, size)
+	hHintCells := i.imageProcessor.SplitHintToCells(hHintImage, size)
 
 	vHint, err := i.ocr.RecognizeNumbersFromCells(vHintCells)
 	if err != nil {
