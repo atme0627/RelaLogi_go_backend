@@ -2,6 +2,7 @@ package infra
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	_ "image/png"
 	"os"
@@ -155,13 +156,100 @@ func Test_SplitHintToCells(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			actual := openCVImageProcesser.SplitHintToCells(tt.in.encodedImage, tt.in.size)
-			encodedConfig, _, err := image.DecodeConfig(bytes.NewReader(actual[0][0].Bytes))
+			decodedConfig, _, err := image.DecodeConfig(bytes.NewReader(actual[0][0].Bytes))
 			if err != nil {
 				t.Fatal(err)
 			}
-			if encodedConfig.Width != tt.expected.width || encodedConfig.Height != tt.expected.height {
-				t.Errorf("expected: (width: %d, height: %d), actual: (width: %d, height: %d)", tt.expected.width, tt.expected.height, encodedConfig.Width, encodedConfig.Height)
+			if decodedConfig.Width != tt.expected.width || decodedConfig.Height != tt.expected.height {
+				t.Errorf("expected: (width: %d, height: %d), actual: (width: %d, height: %d)", tt.expected.width, tt.expected.height, decodedConfig.Width, decodedConfig.Height)
 			}
+		})
+	}
+}
+
+func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
+	t.Parallel()
+	openCVImageProcesser := OpenCVImageProcessor{}
+
+	type in struct {
+		imageName string
+		trimPixel int
+	}
+
+	type expected struct {
+		componentCount int
+	}
+
+	tests := map[string]struct {
+		in       in
+		expected expected
+	}{
+		"正常系: 14": {
+			in{
+				imageName: "testdata/number14.png",
+				trimPixel: 2,
+			},
+			expected{
+				componentCount: 2,
+			},
+		},
+		"正常系: 2": {
+			in{
+				imageName: "testdata/number2.png",
+				trimPixel: 2,
+			},
+			expected{
+				componentCount: 1,
+			},
+		},
+		"正常系: 空白1": {
+			in{
+				imageName: "testdata/blankCell1.png",
+				trimPixel: 2,
+			},
+			expected{
+				componentCount: 0,
+			},
+		},
+		"正常系: 空白2": {
+			in{
+				imageName: "testdata/blankCell2.png",
+				trimPixel: 2,
+			},
+			expected{
+				componentCount: 0,
+			},
+		},
+	}
+
+	for testName, tt := range tests {
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			targetImageByte, err := os.ReadFile(tt.in.imageName)
+			if err != nil {
+				t.Fatal(err)
+			}
+			targetImage, err := entity.NewEncodedImage(targetImageByte, "image/png")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			actual, err := openCVImageProcesser.PreprocessAndSplitCellToDigits(targetImage, tt.in.trimPixel)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			for i, d := range actual {
+				err := os.WriteFile(fmt.Sprintf("testdata/output/%s_preprocessed_%d.png", testName, i), d.Bytes, 0644)
+				if err != nil {
+					return
+				}
+			}
+
+			if len(actual) != tt.expected.componentCount {
+				t.Errorf("expected count: %d, actual count: %d", tt.expected.componentCount, len(actual))
+			}
+
 		})
 	}
 }
