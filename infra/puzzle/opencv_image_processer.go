@@ -3,6 +3,8 @@ package infra
 import (
 	"bytes"
 	"image"
+	"image/png"
+	_ "image/png"
 
 	"github.com/atme0627/RelaLogi_go_backend/entity"
 
@@ -81,8 +83,45 @@ func (o OpenCVImageProcessor) CropHintsFromImage(img entity.EncodedImage, vHintQ
 }
 
 func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, size entity.PuzzleSize) [][]entity.EncodedImage {
-	//TODO implement me
-	panic("implement me")
+	result := make([][]entity.EncodedImage, size.Height)
+	decodedImage, _, err := image.Decode(bytes.NewReader(hint.Bytes))
+	if err != nil {
+		return nil
+	}
+
+	xBoundary := func(i int) int {
+		b := decodedImage.Bounds()
+		return b.Min.X + i*b.Dx()/size.Width
+	}
+	yBoundary := func(i int) int {
+		b := decodedImage.Bounds()
+		return b.Min.Y + i*b.Dy()/size.Height
+	}
+
+	sub, ok := decodedImage.(interface {
+		SubImage(image.Rectangle) image.Image
+	})
+	if !ok {
+		return nil
+	}
+
+	for i := 0; i < size.Height; i++ {
+		result[i] = make([]entity.EncodedImage, size.Width)
+		for j := 0; j < size.Width; j++ {
+			cell := sub.SubImage(image.Rect(xBoundary(j), yBoundary(i), xBoundary(j+1), yBoundary(i+1)))
+			buf := &bytes.Buffer{}
+			err := png.Encode(buf, cell)
+			if err != nil {
+				return nil
+			}
+			encodedCell, err := entity.NewEncodedImage(buf.Bytes(), hint.MimeTypes)
+			if err != nil {
+				return nil
+			}
+			result[i][j] = encodedCell
+		}
+	}
+	return result
 }
 
 func (o OpenCVImageProcessor) getRectifiedImageQuad(hintQuad entity.Quad) entity.Quad {
