@@ -78,8 +78,8 @@ func (o OpenCVImageProcessor) CropHintsFromImage(img entity.EncodedImage, vHintQ
 	return vCroppedImage, hCroppedImage, nil
 }
 
-func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, size entity.PuzzleSize) [][]entity.EncodedImage {
-	result := make([][]entity.EncodedImage, size.Height)
+func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, height int, width int) [][]entity.EncodedImage {
+	result := make([][]entity.EncodedImage, height)
 	decodedImage, _, err := image.Decode(bytes.NewReader(hint.Bytes))
 	if err != nil {
 		return nil
@@ -87,11 +87,11 @@ func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, size en
 
 	xBoundary := func(i int) int {
 		b := decodedImage.Bounds()
-		return b.Min.X + i*b.Dx()/size.Width
+		return b.Min.X + i*b.Dx()/width
 	}
 	yBoundary := func(i int) int {
 		b := decodedImage.Bounds()
-		return b.Min.Y + i*b.Dy()/size.Height
+		return b.Min.Y + i*b.Dy()/height
 	}
 
 	sub, ok := decodedImage.(interface {
@@ -101,9 +101,9 @@ func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, size en
 		return nil
 	}
 
-	for i := 0; i < size.Height; i++ {
-		result[i] = make([]entity.EncodedImage, size.Width)
-		for j := 0; j < size.Width; j++ {
+	for i := 0; i < height; i++ {
+		result[i] = make([]entity.EncodedImage, width)
+		for j := 0; j < width; j++ {
 			cell := sub.SubImage(image.Rect(xBoundary(j), yBoundary(i), xBoundary(j+1), yBoundary(i+1)))
 			buf := &bytes.Buffer{}
 			err := png.Encode(buf, cell)

@@ -128,7 +128,8 @@ func Test_SplitHintToCells(t *testing.T) {
 
 	type in struct {
 		encodedImage entity.EncodedImage
-		size         entity.PuzzleSize
+		height       int
+		width        int
 	}
 
 	type expected struct {
@@ -143,7 +144,8 @@ func Test_SplitHintToCells(t *testing.T) {
 		"正常系": {
 			in{
 				encodedImage: sampleImage,
-				size:         entity.PuzzleSize{Width: 3, Height: 2},
+				height:       2,
+				width:        3,
 			},
 			expected{
 				height: 50,
@@ -155,7 +157,7 @@ func Test_SplitHintToCells(t *testing.T) {
 	for testName, tt := range tests {
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
-			actual := openCVImageProcesser.SplitHintToCells(tt.in.encodedImage, tt.in.size)
+			actual := openCVImageProcesser.SplitHintToCells(tt.in.encodedImage, tt.in.height, tt.in.width)
 			decodedConfig, _, err := image.DecodeConfig(bytes.NewReader(actual[0][0].Bytes))
 			if err != nil {
 				t.Fatal(err)
