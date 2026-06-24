@@ -9,7 +9,6 @@ import (
 	"sort"
 
 	"github.com/atme0627/RelaLogi_go_backend/entity"
-
 	"gocv.io/x/gocv"
 )
 
@@ -224,6 +223,11 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 		centerCount := gocv.CountNonZero(mask.Region(centralRect))
 		if centerCount == 0 {
 			continue
+		}
+
+		err = gocv.BitwiseNot(mask, &mask)
+		if err != nil {
+			return nil, err
 		}
 
 		buf, err := gocv.IMEncode(gocv.PNGFileExt, mask)
