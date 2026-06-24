@@ -32,6 +32,10 @@ func (i PuzzleInteractor) FromImage(ctx context.Context, image entity.EncodedIma
 	}
 
 	draftPuzzle := &entity.Puzzle{Size: size, VHint: vHint, HHint: hHint}
+	err = i.ocr.Close()
+	if err != nil {
+		return nil, [2]entity.EncodedImage{}, err
+	}
 	return draftPuzzle, [2]entity.EncodedImage{vHintImage, hHintImage}, nil
 }
 
