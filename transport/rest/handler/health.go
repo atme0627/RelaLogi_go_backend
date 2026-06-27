@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/atme0627/RelaLogi_go_backend/controller"
-	"github.com/atme0627/RelaLogi_go_backend/transport/rest/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,9 +20,6 @@ func (h *HealthHandler) Register(r gin.IRoutes) {
 }
 
 func (h *HealthHandler) get(ctx *gin.Context) {
-	resp, err := h.c.Get(ctx.Request.Context())
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: "server error"})
-	}
+	resp := h.c.Get(ctx.Request.Context())
 	ctx.JSON(http.StatusOK, resp)
 }
