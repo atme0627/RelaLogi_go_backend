@@ -37,20 +37,24 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [puzzleImage, verticalHintSize, horizontalHintSize, verticalHintRegion, horizontalHintRegion]
+              required: [puzzleImage, hintParameter]
               properties:
                 puzzleImage:
                   type: string
                   format: binary
                   description: パズル画像（PNG）
-                verticalHintSize:
-                  $ref: "#/components/schemas/GridSize"
-                horizontalHintSize:
-                  $ref: "#/components/schemas/GridSize"
-                verticalHintRegion:
-                  $ref: "#/components/schemas/Quad"
-                horizontalHintRegion:
-                  $ref: "#/components/schemas/Quad"
+                hintParameter:
+                  type: object
+                  required: [verticalHintSize, horizontalHintSize, verticalHintRegion, horizontalHintRegion]
+                  properties:
+                    verticalHintSize:
+                      $ref: "#/components/schemas/GridSize"
+                    horizontalHintSize:
+                      $ref: "#/components/schemas/GridSize"
+                    verticalHintRegion:
+                      $ref: "#/components/schemas/Quad"
+                    horizontalHintRegion:
+                      $ref: "#/components/schemas/Quad"
             encoding:
               puzzleImage:
                 contentType: image/png

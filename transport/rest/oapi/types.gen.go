@@ -76,16 +76,18 @@ type Quad = []Point
 
 // RecognizePuzzleMultipartBody defines parameters for RecognizePuzzle.
 type RecognizePuzzleMultipartBody struct {
-	// HorizontalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
-	HorizontalHintRegion Quad     `json:"horizontalHintRegion"`
-	HorizontalHintSize   GridSize `json:"horizontalHintSize"`
+	HintParameter struct {
+		// HorizontalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
+		HorizontalHintRegion Quad     `json:"horizontalHintRegion"`
+		HorizontalHintSize   GridSize `json:"horizontalHintSize"`
+
+		// VerticalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
+		VerticalHintRegion Quad     `json:"verticalHintRegion"`
+		VerticalHintSize   GridSize `json:"verticalHintSize"`
+	} `json:"hintParameter"`
 
 	// PuzzleImage パズル画像（PNG）
 	PuzzleImage openapi_types.File `json:"puzzleImage"`
-
-	// VerticalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
-	VerticalHintRegion Quad     `json:"verticalHintRegion"`
-	VerticalHintSize   GridSize `json:"verticalHintSize"`
 }
 
 // RecognizePuzzleMultipartRequestBody defines body for RecognizePuzzle for multipart/form-data ContentType.
