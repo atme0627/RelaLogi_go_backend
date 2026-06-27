@@ -1,0 +1,169 @@
+openapi: 3.0.3
+
+info:
+  title: RelaLogi Backend API
+  version: 0.1.0
+  description: イラストロジックの画像を元に問題の電子化を行うサービス RelaLogi のAPI
+
+servers:
+  - url: http://localhost:8080
+    description: ローカル開発
+  # TODO: 本番 / ステージングの URL を追加
+
+paths:
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: ヘルスチェック
+      tags:
+        - system
+      responses:
+        "200":
+          description: 正常
+          content:
+            application/json:
+              schema:
+                  type: object
+                  required: [ status ]
+                  properties:
+                    status:
+                      type: string
+                      enum: [ ok ]
+
+  /api/puzzles/recognize:
+    post:
+      operationId: recognizePuzzle
+      summary: 画像とヒント領域のサイズを受け取り、OCRによって電子化したヒントを返す。
+      tags:
+      - puzzles
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [puzzleImage, verticalHintSize, horizontalHintSize, verticalHintRegion, horizontalHintRegion]
+              properties:
+                puzzleImage:
+                  type: string
+                  format: binary
+                  description: パズル画像（PNG）
+                verticalHintSize:
+                  $ref: "#/components/schemas/HintSize"
+                horizontalHintSize:
+                  $ref: "#/components/schemas/HintSize"
+                verticalHintRegion:
+                  $ref: "#/components/schemas/Quad"
+                horizontalHintRegion:
+                  $ref: "#/components/schemas/Quad"
+            encoding:
+              puzzleImage:
+                contentType: image/png
+              verticalHintSize:
+                contentType: application/json
+              horizontalHintSize:
+                contentType: application/json
+              verticalHintRegion:
+                contentType: application/json
+              horizontalHintRegion:
+                contentType: application/json
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Puzzle"
+
+        "400":
+          description: リクエスト不正（画像欠落・頂点が不正など）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: サーバ内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Point:
+      type: object
+      required: [x, y]
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+
+    Quad:
+      # 四角形の4頂点（左上・右上・右下・左下の順）
+      type: array
+      items:
+        $ref: "#/components/schemas/Point"
+      minItems: 4
+      maxItems: 4
+
+    HintSize:
+      type: object
+      required: [rows, cols]
+      properties:
+        rows:
+          type: integer
+          minimum: 1
+        cols:
+          type: integer
+          minimum: 1
+
+    HintGrid:
+      # 数字の文字列。空白時には""を使用
+      type: array
+      items:
+        type: array
+        items:
+          type: string
+
+    Puzzle:
+      type: object
+      required:
+        - verticalHintSize
+        - horizontalHintSize
+        - verticalHintGrid
+        - horizontalHintGrid
+        - verticalHintImage
+        - horizontalHintImage
+      properties:
+        verticalHintSize:
+          $ref: "#/components/schemas/HintSize"
+        horizontalHintSize:
+          $ref: "#/components/schemas/HintSize"
+        verticalHintGrid:
+          $ref: "#/components/schemas/HintGrid"
+        horizontalHintGrid:
+          $ref: "#/components/schemas/HintGrid"
+        verticalHintImage:
+          type: string
+          format: byte
+          description: 縦ヒント画像 (base64 encoded)
+        horizontalHintImage:
+          type: string
+          format: byte
+          description: 横ヒント画像 (base64 encoded)
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: エラーコード
+            message:
+              type: string
+              description: エラー内容の説明
