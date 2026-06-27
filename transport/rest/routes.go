@@ -1,7 +1,7 @@
-package http
+package rest
 
 import (
-	"github.com/atme0627/RelaLogi_go_backend/transport/http/handler"
+	"github.com/atme0627/RelaLogi_go_backend/transport/rest/handler"
 	"github.com/gin-gonic/gin"
 )
 
