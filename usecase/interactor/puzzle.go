@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/atme0627/RelaLogi_go_backend/entity"
-	"github.com/atme0627/RelaLogi_go_backend/usecase/port/puzzle"
+	"github.com/atme0627/RelaLogi_go_backend/usecase/gateway/puzzle"
 )
 
 type PuzzleInteractor struct {
