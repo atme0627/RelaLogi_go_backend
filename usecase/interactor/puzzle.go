@@ -18,10 +18,15 @@ func New(imageProcesser port.ImageProcessor, ocr port.OCR) *PuzzleInteractor {
 
 func (i PuzzleInteractor) FromImage(ctx context.Context, image entity.EncodedImage, vHintQuad entity.Quad, hHintQuad entity.Quad, size entity.PuzzleSize) (*entity.Puzzle, [2]entity.EncodedImage, error) {
 	const TRIM_PIXEL = 2
-	vHintImage, hHintImage, err := i.imageProcessor.CropHintsFromImage(image, vHintQuad, hHintQuad)
+	vHintImage, err := i.imageProcessor.CropHintsFromImage(image, vHintQuad)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
 	}
+	hHintImage, err := i.imageProcessor.CropHintsFromImage(image, hHintQuad)
+	if err != nil {
+		return nil, [2]entity.EncodedImage{}, err
+	}
+
 	vHint, err := i.recognizeHintFromImage(ctx, vHintImage, vHintQuad, size.VHintHeight, size.Width, TRIM_PIXEL)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err

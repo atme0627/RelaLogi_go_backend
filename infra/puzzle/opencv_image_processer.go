@@ -15,66 +15,46 @@ import (
 type OpenCVImageProcessor struct {
 }
 
-func (o OpenCVImageProcessor) CropHintsFromImage(img entity.EncodedImage, vHintQuad entity.Quad, hHintQuad entity.Quad) (entity.EncodedImage, entity.EncodedImage, error) {
+func (o OpenCVImageProcessor) CropHintsFromImage(img entity.EncodedImage, hintQuad entity.Quad) (entity.EncodedImage, error) {
 	mat, err := gocv.IMDecode(img.Bytes, gocv.IMReadColor)
 	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
+		return entity.EncodedImage{}, err
 	}
 	defer closeMat(&mat)
 
-	vHintQuad.SortClockwiseFromTopLeft()
-	hHintQuad.SortClockwiseFromTopLeft()
+	hintQuad.SortClockwiseFromTopLeft()
 
-	vRectified := o.getRectifiedImageQuad(vHintQuad)
-	hRectified := o.getRectifiedImageQuad(hHintQuad)
+	rectified := o.getRectifiedImageQuad(hintQuad)
 
-	pvVFrom := gocv.NewPointVectorFromPoints([]image.Point{image.Point(vHintQuad.P1), image.Point(vHintQuad.P2), image.Point(vHintQuad.P3), image.Point(vHintQuad.P4)})
-	pvHFrom := gocv.NewPointVectorFromPoints([]image.Point{image.Point(hHintQuad.P1), image.Point(hHintQuad.P2), image.Point(hHintQuad.P3), image.Point(hHintQuad.P4)})
-	pvVTo := gocv.NewPointVectorFromPoints([]image.Point{image.Point(vRectified.P1), image.Point(vRectified.P2), image.Point(vRectified.P3), image.Point(vRectified.P4)})
-	pvHTo := gocv.NewPointVectorFromPoints([]image.Point{image.Point(hRectified.P1), image.Point(hRectified.P2), image.Point(hRectified.P3), image.Point(hRectified.P4)})
-	defer pvVFrom.Close()
-	defer pvHFrom.Close()
-	defer pvVTo.Close()
-	defer pvHTo.Close()
+	pvFrom := gocv.NewPointVectorFromPoints([]image.Point{image.Point(hintQuad.P1), image.Point(hintQuad.P2), image.Point(hintQuad.P3), image.Point(hintQuad.P4)})
+	pvTo := gocv.NewPointVectorFromPoints([]image.Point{image.Point(rectified.P1), image.Point(rectified.P2), image.Point(rectified.P3), image.Point(rectified.P4)})
+	defer pvFrom.Close()
+	defer pvTo.Close()
 
-	vM := gocv.GetPerspectiveTransform(pvVFrom, pvVTo)
-	hM := gocv.GetPerspectiveTransform(pvHFrom, pvHTo)
+	M := gocv.GetPerspectiveTransform(pvFrom, pvTo)
 
 	vCroppedMatDest := gocv.NewMat()
 	hCroppedMatDest := gocv.NewMat()
 	defer closeMat(&vCroppedMatDest)
 	defer closeMat(&hCroppedMatDest)
 
-	err = gocv.WarpPerspective(mat, &vCroppedMatDest, vM, image.Point(vRectified.P3))
+	err = gocv.WarpPerspective(mat, &vCroppedMatDest, M, image.Point(rectified.P3))
 	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
-	}
-	err = gocv.WarpPerspective(mat, &hCroppedMatDest, hM, image.Point(hRectified.P3))
-	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
+		return entity.EncodedImage{}, err
 	}
 
-	vBuf, err := gocv.IMEncode(gocv.PNGFileExt, vCroppedMatDest)
+	buf, err := gocv.IMEncode(gocv.PNGFileExt, vCroppedMatDest)
 	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
+		return entity.EncodedImage{}, err
 	}
-	defer vBuf.Close()
-	hBuf, err := gocv.IMEncode(gocv.PNGFileExt, hCroppedMatDest)
-	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
-	}
-	defer hBuf.Close()
+	defer buf.Close()
 
-	vCroppedImage, err := entity.NewEncodedImage(bytes.Clone(vBuf.GetBytes()), img.MimeTypes)
+	croppedImage, err := entity.NewEncodedImage(bytes.Clone(buf.GetBytes()), img.MimeTypes)
 	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
-	}
-	hCroppedImage, err := entity.NewEncodedImage(bytes.Clone(hBuf.GetBytes()), img.MimeTypes)
-	if err != nil {
-		return entity.EncodedImage{}, entity.EncodedImage{}, err
+		return entity.EncodedImage{}, err
 	}
 
-	return vCroppedImage, hCroppedImage, nil
+	return croppedImage, nil
 }
 
 func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, height int, width int) [][]entity.EncodedImage {

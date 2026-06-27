@@ -59,32 +59,36 @@ func Test_CropHintsFromImage(t *testing.T) {
 
 	type in struct {
 		encodedImage entity.EncodedImage
-		vHintQuad    entity.Quad
-		hHintQuad    entity.Quad
+		hintQuad     entity.Quad
 	}
 
 	type expected struct {
-		vHeight int
-		vWidth  int
-		hHeight int
-		hWidth  int
+		height int
+		width  int
 	}
 
 	tests := map[string]struct {
 		in       in
 		expected expected
 	}{
-		"正常系": {
+		"正常系1": {
 			in{
 				encodedImage: sampleImage,
-				vHintQuad:    entity.Quad{entity.Point{107, 257}, entity.Point{273, 278}, entity.Point{263, 382}, entity.Point{98, 360}},
-				hHintQuad:    entity.Quad{entity.Point{285, 156}, entity.Point{435, 175}, entity.Point{422, 298}, entity.Point{273, 278}},
+				hintQuad:     entity.Quad{entity.Point{107, 257}, entity.Point{273, 278}, entity.Point{263, 382}, entity.Point{98, 360}},
 			},
 			expected{
-				vHeight: 104,
-				vWidth:  167,
-				hHeight: 123,
-				hWidth:  151,
+				height: 104,
+				width:  167,
+			},
+		},
+		"正常系2": {
+			in{
+				encodedImage: sampleImage,
+				hintQuad:     entity.Quad{entity.Point{285, 156}, entity.Point{435, 175}, entity.Point{422, 298}, entity.Point{273, 278}},
+			},
+			expected{
+				height: 123,
+				width:  151,
 			},
 		},
 	}
@@ -92,23 +96,17 @@ func Test_CropHintsFromImage(t *testing.T) {
 	for testName, tt := range tests {
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
-			vActual, hActual, err := openCVImageProcesser.CropHintsFromImage(tt.in.encodedImage, tt.in.vHintQuad, tt.in.hHintQuad)
+			actual, err := openCVImageProcesser.CropHintsFromImage(tt.in.encodedImage, tt.in.hintQuad)
 			if err != nil {
 				t.Fatal(err)
 			}
-			vEncodedConfig, _, err := image.DecodeConfig(bytes.NewReader(vActual.Bytes))
+			encodedConfig, _, err := image.DecodeConfig(bytes.NewReader(actual.Bytes))
 			if err != nil {
 				t.Fatal(err)
 			}
-			hEncodedConfig, _, err := image.DecodeConfig(bytes.NewReader(hActual.Bytes))
-			if err != nil {
-				t.Fatal(err)
-			}
-			if vEncodedConfig.Width != tt.expected.vWidth || vEncodedConfig.Height != tt.expected.vHeight {
-				t.Errorf("expected: (width: %d, height: %d), actual: (width: %d, height: %d)", tt.expected.vWidth, tt.expected.vHeight, vEncodedConfig.Width, vEncodedConfig.Height)
-			}
-			if hEncodedConfig.Width != tt.expected.hWidth || hEncodedConfig.Height != tt.expected.hHeight {
-				t.Errorf("expected: (width: %d, height: %d), actual: (width: %d, height: %d)", tt.expected.hWidth, tt.expected.hHeight, hEncodedConfig.Width, hEncodedConfig.Height)
+
+			if encodedConfig.Width != tt.expected.width || encodedConfig.Height != tt.expected.height {
+				t.Errorf("expected: (width: %d, height: %d), actual: (width: %d, height: %d)", tt.expected.width, tt.expected.height, encodedConfig.Width, encodedConfig.Height)
 			}
 		})
 	}
