@@ -1,7 +1,7 @@
 package gin
 
 import (
-	"github.com/atme0627/RelaLogi_go_backend/framework/adapter/gin/handler"
+	"github.com/atme0627/RelaLogi_go_backend/transport/adapter/gin/handler"
 	"github.com/gin-gonic/gin"
 )
 

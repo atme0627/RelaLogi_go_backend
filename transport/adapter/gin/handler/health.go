@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/atme0627/RelaLogi_go_backend/controller"
-	"github.com/atme0627/RelaLogi_go_backend/framework/adapter/response"
+	"github.com/atme0627/RelaLogi_go_backend/transport/adapter/response"
 	"github.com/gin-gonic/gin"
 )
 
