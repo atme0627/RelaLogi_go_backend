@@ -7,13 +7,13 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// Defines values for GetHealth200JSONResponseBodyStatus.
+// Defines values for HealthResponseStatus.
 const (
-	Ok GetHealth200JSONResponseBodyStatus = "ok"
+	Ok HealthResponseStatus = "ok"
 )
 
-// Valid indicates whether the value is a known member of the GetHealth200JSONResponseBodyStatus enum.
-func (e GetHealth200JSONResponseBodyStatus) Valid() bool {
+// Valid indicates whether the value is a known member of the HealthResponseStatus enum.
+func (e HealthResponseStatus) Valid() bool {
 	switch e {
 	case Ok:
 		return true
@@ -47,6 +47,14 @@ type GridSize struct {
 	Rows int `json:"rows"`
 }
 
+// HealthResponse defines model for HealthResponse.
+type HealthResponse struct {
+	Status HealthResponseStatus `json:"status"`
+}
+
+// HealthResponseStatus defines model for HealthResponse.Status.
+type HealthResponseStatus string
+
 // Point defines model for Point.
 type Point struct {
 	X float32 `json:"x"`
@@ -67,9 +75,6 @@ type Puzzle struct {
 
 // Quad 四角形の4頂点（左上・右上・右下・左下の順）
 type Quad = []Point
-
-// GetHealth200JSONResponseBodyStatus defines parameters for GetHealth.
-type GetHealth200JSONResponseBodyStatus string
 
 // RecognizePuzzleMultipartBody defines parameters for RecognizePuzzle.
 type RecognizePuzzleMultipartBody struct {

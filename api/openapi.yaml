@@ -23,12 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  required: [ status ]
-                  properties:
-                    status:
-                      type: string
-                      enum: [ ok ]
+                $ref: "#/components/schemas/HealthResponse"
 
   /api/puzzles/recognize:
     post:
@@ -152,6 +147,14 @@ components:
           type: string
           format: uri
           description: 横ヒント画像。data URI 形式（data:image/png;base64,...）
+
+    HealthResponse:
+      type: object
+      required: [ status ]
+      properties:
+        status:
+          type: string
+          enum: [ ok ]
 
     Error:
       type: object
