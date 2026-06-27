@@ -24,13 +24,11 @@ func (e HealthResponseStatus) Valid() bool {
 
 // Error defines model for Error.
 type Error struct {
-	Error struct {
-		// Code エラーコード
-		Code string `json:"code"`
+	// Code エラーコード
+	Code string `json:"code"`
 
-		// Message エラー内容の説明
-		Message string `json:"message"`
-	} `json:"error"`
+	// Message エラー内容の説明
+	Message string `json:"message"`
 }
 
 // Grid defines model for Grid.
