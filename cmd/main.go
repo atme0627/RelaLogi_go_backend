@@ -4,16 +4,16 @@ import (
 	"log"
 
 	"github.com/atme0627/RelaLogi_go_backend/controller"
-	"github.com/atme0627/RelaLogi_go_backend/transport/adapter/gin"
-	"github.com/atme0627/RelaLogi_go_backend/transport/adapter/gin/handler"
+	"github.com/atme0627/RelaLogi_go_backend/transport/http"
+	"github.com/atme0627/RelaLogi_go_backend/transport/http/handler"
 )
 
 func main() {
 	healthController := controller.NewHealthController()
 	healthHandler := handler.NewHandler(healthController)
-	handlers := gin.Handlers{
+	handlers := http.Handlers{
 		Health: healthHandler,
 	}
-	e := gin.NewEngine(handlers)
+	e := http.NewEngine(handlers)
 	log.Fatal(e.Run(":8080"))
 }
