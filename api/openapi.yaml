@@ -49,9 +49,9 @@ paths:
                   format: binary
                   description: パズル画像（PNG）
                 verticalHintSize:
-                  $ref: "#/components/schemas/HintSize"
+                  $ref: "#/components/schemas/GridSize"
                 horizontalHintSize:
-                  $ref: "#/components/schemas/HintSize"
+                  $ref: "#/components/schemas/GridSize"
                 verticalHintRegion:
                   $ref: "#/components/schemas/Quad"
                 horizontalHintRegion:
@@ -100,14 +100,14 @@ components:
           type: number
 
     Quad:
-      # 四角形の4頂点（左上・右上・右下・左下の順）
+      description: 四角形の4頂点（左上・右上・右下・左下の順）
       type: array
       items:
         $ref: "#/components/schemas/Point"
       minItems: 4
       maxItems: 4
 
-    HintSize:
+    GridSize:
       type: object
       required: [rows, cols]
       properties:
@@ -118,40 +118,40 @@ components:
           type: integer
           minimum: 1
 
-    HintGrid:
-      # 数字の文字列。空白時には""を使用
-      type: array
-      items:
-        type: array
-        items:
-          type: string
+    Grid:
+      type: object
+      required: [size, values]
+      properties:
+        size:
+          $ref: "#/components/schemas/GridSize"
+        values:
+          description: 数字の文字列。空白時には""を使用
+          type: array
+          items:
+            type: array
+            items:
+              type: string
 
     Puzzle:
       type: object
       required:
-        - verticalHintSize
-        - horizontalHintSize
         - verticalHintGrid
         - horizontalHintGrid
         - verticalHintImage
         - horizontalHintImage
       properties:
-        verticalHintSize:
-          $ref: "#/components/schemas/HintSize"
-        horizontalHintSize:
-          $ref: "#/components/schemas/HintSize"
         verticalHintGrid:
-          $ref: "#/components/schemas/HintGrid"
+          $ref: "#/components/schemas/Grid"
         horizontalHintGrid:
-          $ref: "#/components/schemas/HintGrid"
+          $ref: "#/components/schemas/Grid"
         verticalHintImage:
           type: string
-          format: byte
-          description: 縦ヒント画像 (base64 encoded)
+          format: uri
+          description: 縦ヒント画像。data URI 形式（data:image/png;base64,...）
         horizontalHintImage:
           type: string
-          format: byte
-          description: 横ヒント画像 (base64 encoded)
+          format: uri
+          description: 横ヒント画像。data URI 形式（data:image/png;base64,...）
 
     Error:
       type: object
