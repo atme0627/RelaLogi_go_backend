@@ -42,7 +42,7 @@ func (o *TesseractOCR) RecognizeNumberFromCell(hintCell entity.EncodedImage) (in
 		return -1, nil
 	}
 
-	if '0' < ocrResult[0] && ocrResult[0] < '9' {
+	if '0' <= ocrResult[0] && ocrResult[0] <= '9' {
 		return int(ocrResult[0] - '0'), nil
 	}
 

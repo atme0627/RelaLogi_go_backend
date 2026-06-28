@@ -60,15 +60,20 @@ func (i PuzzleInteractor) recognizeHintFromImage(ctx context.Context, hintImage 
 				return nil, err
 			}
 
+			if len(preprocessedCells) == 0 {
+				recognizedNumber = -1
+			}
+
 			for _, preprocessedCell := range preprocessedCells {
 				ocrResult, err := i.ocr.RecognizeNumberFromCell(preprocessedCell)
 				if err != nil {
 					return nil, err
 				}
-				recognizedNumber = recognizedNumber*10 + ocrResult
-				if recognizedNumber == -1 {
-					continue
+				if ocrResult == -1 {
+					recognizedNumber = -1
+					break
 				}
+				recognizedNumber = recognizedNumber*10 + ocrResult
 			}
 			result[j][k] = recognizedNumber
 		}
