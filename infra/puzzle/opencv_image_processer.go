@@ -15,6 +15,10 @@ import (
 type OpenCVImageProcessor struct {
 }
 
+func NewOpenCVImageProcessor() *OpenCVImageProcessor {
+	return &OpenCVImageProcessor{}
+}
+
 func (o OpenCVImageProcessor) CropHintsFromImage(img entity.EncodedImage, hintQuad entity.Quad) (entity.EncodedImage, error) {
 	mat, err := gocv.IMDecode(img.Bytes, gocv.IMReadColor)
 	if err != nil {

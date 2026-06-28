@@ -7,9 +7,11 @@ import (
 
 type Handlers struct {
 	Health *handler.HealthHandler
+	Puzzle *handler.PuzzleHandler
 }
 
 func RegisterRoutes(r *gin.Engine, h Handlers) {
 	api := r.Group("/api")
 	h.Health.Register(api)
+	h.Puzzle.Register(api)
 }
