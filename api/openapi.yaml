@@ -44,27 +44,11 @@ paths:
                   format: binary
                   description: パズル画像（PNG）
                 hintParameter:
-                  type: object
-                  required: [verticalHintSize, horizontalHintSize, verticalHintRegion, horizontalHintRegion]
-                  properties:
-                    verticalHintSize:
-                      $ref: "#/components/schemas/GridSize"
-                    horizontalHintSize:
-                      $ref: "#/components/schemas/GridSize"
-                    verticalHintRegion:
-                      $ref: "#/components/schemas/Quad"
-                    horizontalHintRegion:
-                      $ref: "#/components/schemas/Quad"
+                  $ref: "#/components/schemas/HintParameter"
             encoding:
               puzzleImage:
                 contentType: image/png
-              verticalHintSize:
-                contentType: application/json
-              horizontalHintSize:
-                contentType: application/json
-              verticalHintRegion:
-                contentType: application/json
-              horizontalHintRegion:
+              hintParameter:
                 contentType: application/json
       responses:
         "200":
@@ -159,6 +143,19 @@ components:
         status:
           type: string
           enum: [ ok ]
+
+    HintParameter:
+      type: object
+      required: [ verticalHintSize, horizontalHintSize, verticalHintRegion, horizontalHintRegion ]
+      properties:
+        verticalHintSize:
+          $ref: "#/components/schemas/GridSize"
+        horizontalHintSize:
+          $ref: "#/components/schemas/GridSize"
+        verticalHintRegion:
+          $ref: "#/components/schemas/Quad"
+        horizontalHintRegion:
+          $ref: "#/components/schemas/Quad"
 
     Error:
       type: object

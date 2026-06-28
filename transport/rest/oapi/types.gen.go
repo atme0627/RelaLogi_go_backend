@@ -53,6 +53,17 @@ type HealthResponse struct {
 // HealthResponseStatus defines model for HealthResponse.Status.
 type HealthResponseStatus string
 
+// HintParameter defines model for HintParameter.
+type HintParameter struct {
+	// HorizontalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
+	HorizontalHintRegion Quad     `json:"horizontalHintRegion"`
+	HorizontalHintSize   GridSize `json:"horizontalHintSize"`
+
+	// VerticalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
+	VerticalHintRegion Quad     `json:"verticalHintRegion"`
+	VerticalHintSize   GridSize `json:"verticalHintSize"`
+}
+
 // Point defines model for Point.
 type Point struct {
 	X float32 `json:"x"`
@@ -76,15 +87,7 @@ type Quad = []Point
 
 // RecognizePuzzleMultipartBody defines parameters for RecognizePuzzle.
 type RecognizePuzzleMultipartBody struct {
-	HintParameter struct {
-		// HorizontalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
-		HorizontalHintRegion Quad     `json:"horizontalHintRegion"`
-		HorizontalHintSize   GridSize `json:"horizontalHintSize"`
-
-		// VerticalHintRegion 四角形の4頂点（左上・右上・右下・左下の順）
-		VerticalHintRegion Quad     `json:"verticalHintRegion"`
-		VerticalHintSize   GridSize `json:"verticalHintSize"`
-	} `json:"hintParameter"`
+	HintParameter HintParameter `json:"hintParameter"`
 
 	// PuzzleImage パズル画像（PNG）
 	PuzzleImage openapi_types.File `json:"puzzleImage"`
