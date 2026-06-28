@@ -37,10 +37,6 @@ func (i PuzzleInteractor) RecognizeFromImage(ctx context.Context, image entity.E
 	}
 
 	draftPuzzle := &entity.Puzzle{Size: size, VHint: vHint, HHint: hHint}
-	err = i.ocr.Close()
-	if err != nil {
-		return nil, [2]entity.EncodedImage{}, err
-	}
 	return draftPuzzle, [2]entity.EncodedImage{vHintImage, hHintImage}, nil
 }
 
