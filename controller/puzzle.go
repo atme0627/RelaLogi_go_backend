@@ -19,11 +19,16 @@ func NewPuzzleController(puzzle inputport.Puzzle) *PuzzleController {
 	}
 }
 
-func (c *PuzzleController) RecognizeFromImage(ctx context.Context, puzzleImageByte []byte, vHintSize oapi.GridSize, hHintSize oapi.GridSize, vHintRegion oapi.Quad, hHintRegion oapi.Quad) (oapi.Puzzle, error) {
+func (c *PuzzleController) RecognizeFromImage(ctx context.Context, puzzleImageByte []byte, hintParameter oapi.HintParameter) (oapi.Puzzle, error) {
 	puzzleImage, err := entity.NewEncodedImage(puzzleImageByte, "image/png")
 	if err != nil {
 		return oapi.Puzzle{}, fmt.Errorf("failed to create puzzle image: %w", err)
 	}
+
+	vHintSize := hintParameter.VerticalHintSize
+	hHintSize := hintParameter.HorizontalHintSize
+	vHintRegion := hintParameter.VerticalHintRegion
+	hHintRegion := hintParameter.HorizontalHintRegion
 
 	puzzleSize := entity.PuzzleSize{
 		Width:       vHintSize.Cols,
