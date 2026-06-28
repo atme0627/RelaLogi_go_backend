@@ -11,7 +11,7 @@ import (
 
 func toEntityQuad(q oapi.Quad) (entity.Quad, error) {
 	if len(q) != 4 {
-		return entity.Quad{}, apperror.BadRequest("INVALID_HINT_REGION", "region must have 4 elements", nil)
+		return entity.Quad{}, apperror.BadRequest("INVALID_HINT_REGION", "ヒント領域は4頂点で指定してください。", nil)
 	}
 
 	result := entity.Quad{
