@@ -147,10 +147,7 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 	}
 
 	//二値化
-	err = gocv.AdaptiveThreshold(grayMat, &mat, 255, gocv.AdaptiveThresholdGaussian, gocv.ThresholdBinaryInv, 31, 2)
-	if err != nil {
-		return nil, err
-	}
+	gocv.Threshold(grayMat, &mat, 0, 255, gocv.ThresholdBinaryInv|gocv.ThresholdOtsu)
 
 	//連結成分の抽出
 	labelsMat := gocv.NewMat()
