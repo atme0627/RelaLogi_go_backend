@@ -50,7 +50,9 @@ func (o *TesseractOCR) RecognizeNumberFromCell(hintCell entity.EncodedImage) (in
 	switch ocrResult[0] {
 	case 'o', 'O':
 		return 0, nil
-	case 'z':
+	case '|', 'l', 'I':
+		return 1, nil
+	case 'z', 'Z':
 		return 2, nil
 	case 's', 'S':
 		return 5, nil
