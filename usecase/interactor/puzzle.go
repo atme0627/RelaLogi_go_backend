@@ -17,7 +17,6 @@ func New(imageProcesser port.ImageProcessor, ocr port.OCR) *PuzzleInteractor {
 }
 
 func (i PuzzleInteractor) RecognizeFromImage(ctx context.Context, image entity.EncodedImage, vHintQuad entity.Quad, hHintQuad entity.Quad, size entity.PuzzleSize) (*entity.Puzzle, [2]entity.EncodedImage, error) {
-	const TRIM_PIXEL = 0
 	vHintImage, err := i.imageProcessor.CropHintsFromImage(image, vHintQuad)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
@@ -27,11 +26,11 @@ func (i PuzzleInteractor) RecognizeFromImage(ctx context.Context, image entity.E
 		return nil, [2]entity.EncodedImage{}, err
 	}
 
-	vHint, err := i.recognizeHintFromImage(ctx, vHintImage, vHintQuad, size.VHintHeight, size.Width, TRIM_PIXEL)
+	vHint, err := i.recognizeHintFromImage(ctx, vHintImage, vHintQuad, size.VHintHeight, size.Width)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
 	}
-	hHint, err := i.recognizeHintFromImage(ctx, hHintImage, hHintQuad, size.Height, size.HHintWidth, TRIM_PIXEL)
+	hHint, err := i.recognizeHintFromImage(ctx, hHintImage, hHintQuad, size.Height, size.HHintWidth)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
 	}
@@ -45,7 +44,7 @@ func (i PuzzleInteractor) Create(ctx context.Context) error {
 	panic("implement me")
 }
 
-func (i PuzzleInteractor) recognizeHintFromImage(ctx context.Context, hintImage entity.EncodedImage, hintQuad entity.Quad, height int, width int, trimPixel int) ([][]int, error) {
+func (i PuzzleInteractor) recognizeHintFromImage(ctx context.Context, hintImage entity.EncodedImage, hintQuad entity.Quad, height int, width int) ([][]int, error) {
 	vHintCells := i.imageProcessor.SplitHintToCells(hintImage, height, width)
 
 	result := make([][]int, height)
@@ -55,7 +54,7 @@ func (i PuzzleInteractor) recognizeHintFromImage(ctx context.Context, hintImage 
 	for j, rows := range vHintCells {
 		for k, cell := range rows {
 			recognizedNumber := 0
-			preprocessedCells, err := i.imageProcessor.PreprocessAndSplitCellToDigits(cell, trimPixel)
+			preprocessedCells, err := i.imageProcessor.PreprocessAndSplitCellToDigits(cell)
 			if err != nil {
 				return nil, err
 			}

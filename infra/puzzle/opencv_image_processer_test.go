@@ -174,7 +174,6 @@ func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
 
 	type in struct {
 		imageName string
-		trimPixel int
 	}
 
 	type expected struct {
@@ -188,7 +187,6 @@ func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
 		"正常系: 14": {
 			in{
 				imageName: "testdata/number14.png",
-				trimPixel: 2,
 			},
 			expected{
 				componentCount: 2,
@@ -197,7 +195,6 @@ func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
 		"正常系: 2": {
 			in{
 				imageName: "testdata/number2.png",
-				trimPixel: 2,
 			},
 			expected{
 				componentCount: 1,
@@ -206,7 +203,6 @@ func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
 		"正常系: 空白1": {
 			in{
 				imageName: "testdata/blankCell1.png",
-				trimPixel: 2,
 			},
 			expected{
 				componentCount: 0,
@@ -215,7 +211,6 @@ func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
 		"正常系: 空白2": {
 			in{
 				imageName: "testdata/blankCell2.png",
-				trimPixel: 2,
 			},
 			expected{
 				componentCount: 0,
@@ -235,7 +230,7 @@ func Test_PreprocessAndSplitCellToDigits(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			actual, err := openCVImageProcesser.PreprocessAndSplitCellToDigits(targetImage, tt.in.trimPixel)
+			actual, err := openCVImageProcesser.PreprocessAndSplitCellToDigits(targetImage)
 			if err != nil {
 				t.Fatal(err)
 			}

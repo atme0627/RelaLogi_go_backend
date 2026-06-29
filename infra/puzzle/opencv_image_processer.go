@@ -126,7 +126,7 @@ func (o OpenCVImageProcessor) getRectifiedImageQuad(hintQuad entity.Quad) entity
 	return entity.Quad{entity.Point{0, 0}, entity.Point{width, 0}, entity.Point{width, height}, entity.Point{0, height}}
 }
 
-func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.EncodedImage, trimPixel int) ([]entity.EncodedImage, error) {
+func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.EncodedImage) ([]entity.EncodedImage, error) {
 	const centralThreshold = 0.5 // セルの中央何%に含まれる連結成分を使用するかを決める。
 	const areaRatio = 0.03       // セル面積のこの割合未満の連結成分は無視
 	const digitPad = 5           // OCRに渡す桁画像を bbox + この余白px で切り抜く
@@ -136,9 +136,6 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 		return nil, err
 	}
 	defer closeMat(&mat)
-
-	//周辺のトリミング
-	mat = mat.Region(image.Rect(trimPixel, trimPixel, mat.Cols()-trimPixel, mat.Rows()-trimPixel))
 
 	//グレースケール化
 	grayMat := gocv.NewMat()

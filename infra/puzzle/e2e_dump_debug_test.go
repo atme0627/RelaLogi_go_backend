@@ -222,7 +222,7 @@ func Test_DumpE2E(t *testing.T) {
 
 					// 認識結果は「順序入替版」で（result.txt 用。本体は未改変）
 					recognized := 0
-					digits, err := proc.PreprocessAndSplitCellToDigits(cell, dumpTrimPixel)
+					digits, err := proc.PreprocessAndSplitCellToDigits(cell)
 					if err != nil {
 						t.Fatalf("Preprocess failed at r%d c%d: %v", r, c, err)
 					}
