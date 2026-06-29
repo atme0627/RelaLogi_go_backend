@@ -17,7 +17,7 @@ func New(imageProcesser port.ImageProcessor, ocr port.OCR) *PuzzleInteractor {
 }
 
 func (i PuzzleInteractor) RecognizeFromImage(ctx context.Context, image entity.EncodedImage, vHintQuad entity.Quad, hHintQuad entity.Quad, size entity.PuzzleSize) (*entity.Puzzle, [2]entity.EncodedImage, error) {
-	const TRIM_PIXEL = 2
+	const TRIM_PIXEL = 0
 	vHintImage, err := i.imageProcessor.CropHintsFromImage(image, vHintQuad)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
