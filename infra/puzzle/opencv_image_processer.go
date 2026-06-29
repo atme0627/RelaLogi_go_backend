@@ -128,6 +128,8 @@ func (o OpenCVImageProcessor) getRectifiedImageQuad(hintQuad entity.Quad) entity
 
 func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.EncodedImage, trimPixel int) ([]entity.EncodedImage, error) {
 	const centralThreshold = 0.5 // セルの中央何%に含まれる連結成分を使用するかを決める。
+	const areaRatio = 0.03       // セル面積のこの割合未満の連結成分は無視
+	const digitPad = 5           // OCRに渡す桁画像を bbox + この余白px で切り抜く
 
 	mat, err := gocv.IMDecode(cell.Bytes, gocv.IMReadColor)
 	if err != nil {
@@ -226,13 +228,17 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 
 		err = gocv.BitwiseNot(digit, &digit)
 		if err != nil {
+			closeMat(&digit)
 			return nil, err
 		}
 		buf, err := gocv.IMEncode(gocv.PNGFileExt, digit)
 		if err != nil {
+			closeMat(&digit)
 			return nil, err
 		}
 		encodedDigit, err := entity.NewEncodedImage(bytes.Clone(buf.GetBytes()), cell.MimeTypes)
+		buf.Close()
+		closeMat(&digit)
 		if err != nil {
 			return nil, err
 		}
