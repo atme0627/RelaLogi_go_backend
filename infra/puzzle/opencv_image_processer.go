@@ -84,10 +84,20 @@ func (o OpenCVImageProcessor) SplitHintToCells(hint entity.EncodedImage, height 
 		return nil
 	}
 
+	// セルを上下左右に overlapRatio ぶん広げて切り出す(隣と重ねる)。
+	// 透視補正の歪みで分割境界が実グリッドから少しずれても数字が見切れないようにするため。
+	const overlapRatio = 0.10
+	b := decodedImage.Bounds()
+	marginX := int(math.Round(overlapRatio * float64(b.Dx()) / float64(width)))
+	marginY := int(math.Round(overlapRatio * float64(b.Dy()) / float64(height)))
+
 	for i := 0; i < height; i++ {
 		result[i] = make([]entity.EncodedImage, width)
 		for j := 0; j < width; j++ {
-			cell := sub.SubImage(image.Rect(xBoundary(j), yBoundary(i), xBoundary(j+1), yBoundary(i+1)))
+			cell := sub.SubImage(image.Rect(
+				max(b.Min.X, xBoundary(j)-marginX), max(b.Min.Y, yBoundary(i)-marginY),
+				min(b.Max.X, xBoundary(j+1)+marginX), min(b.Max.Y, yBoundary(i+1)+marginY),
+			))
 			buf := &bytes.Buffer{}
 			err := png.Encode(buf, cell)
 			if err != nil {
