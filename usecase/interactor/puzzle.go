@@ -26,11 +26,11 @@ func (i PuzzleInteractor) RecognizeFromImage(ctx context.Context, image entity.E
 		return nil, [2]entity.EncodedImage{}, err
 	}
 
-	vHint, err := i.recognizeHintFromImage(ctx, vHintImage, vHintQuad, size.VHintHeight, size.Width)
+	vHint, err := i.recognizeHintFromImage(vHintImage, size.VHintHeight, size.Width)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
 	}
-	hHint, err := i.recognizeHintFromImage(ctx, hHintImage, hHintQuad, size.Height, size.HHintWidth)
+	hHint, err := i.recognizeHintFromImage(hHintImage, size.Height, size.HHintWidth)
 	if err != nil {
 		return nil, [2]entity.EncodedImage{}, err
 	}
@@ -44,7 +44,7 @@ func (i PuzzleInteractor) Create(ctx context.Context) error {
 	panic("implement me")
 }
 
-func (i PuzzleInteractor) recognizeHintFromImage(ctx context.Context, hintImage entity.EncodedImage, hintQuad entity.Quad, height int, width int) ([][]int, error) {
+func (i PuzzleInteractor) recognizeHintFromImage(hintImage entity.EncodedImage, height int, width int) ([][]int, error) {
 	vHintCells := i.imageProcessor.SplitHintToCells(hintImage, height, width)
 
 	result := make([][]int, height)
