@@ -165,7 +165,6 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 	}
 
 	var components []component
-
 	for i := 1; i < count; i++ {
 		area := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_AREA)))
 		if area < int(float64(mat.Rows()*mat.Cols())*0.05) {
@@ -175,13 +174,12 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 		y := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_TOP)))
 		w := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_WIDTH)))
 		h := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_HEIGHT)))
-
-		components = append(components, component{rect: image.Rect(x, y, x+w, y+h), area: area, label: i})
 		rect := image.Rect(x, y, x+w, y+h)
 		// 上下両方 or 左右両方に接する成分は枠線とみなして除去
 		if isFrameComponent(rect, cols, rows) {
 			continue
 		}
+		components = append(components, component{rect: rect, area: area, label: i})
 	}
 	sort.Slice(components, func(i, j int) bool { return components[i].area > components[j].area })
 	digitsCount := int(math.Min(float64(len(components)), 2))
@@ -221,22 +219,19 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 			continue
 		}
 
-		err = gocv.BitwiseNot(mask, &mask)
+		err = gocv.BitwiseNot(digit, &digit)
 		if err != nil {
 			return nil, err
 		}
-
-		buf, err := gocv.IMEncode(gocv.PNGFileExt, mask)
+		buf, err := gocv.IMEncode(gocv.PNGFileExt, digit)
 		if err != nil {
 			return nil, err
 		}
-		defer buf.Close()
 		encodedDigit, err := entity.NewEncodedImage(bytes.Clone(buf.GetBytes()), cell.MimeTypes)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, encodedDigit)
-
 	}
 
 	return result, nil
