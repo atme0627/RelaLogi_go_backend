@@ -208,9 +208,6 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 	components = components[:digitsCount]
 	sort.Slice(components, func(i, j int) bool { return components[i].rect.Min.X < components[j].rect.Min.X })
 
-	mask := gocv.NewMat()
-	defer closeMat(&mask)
-
 	var result []entity.EncodedImage
 	for _, c := range components {
 		err := gocv.InRangeWithScalar(labelsMat, gocv.Scalar{float64(c.label), 0, 0, 0}, gocv.Scalar{float64(c.label), 0, 0, 0}, &mask)
