@@ -158,16 +158,30 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 	defer closeMat(&centroidsMat)
 
 	count := gocv.ConnectedComponentsWithStats(mat, &labelsMat, &statsMat, &centroidsMat)
+
+	cols := mat.Cols()
+	rows := mat.Rows()
+	cellArea := float64(cols * rows)
+	centralRect := image.Rect(
+		int(math.Ceil(float64(cols)*(centralThreshold/2))), int(math.Ceil(float64(rows)*(centralThreshold/2))),
+		int(math.Ceil(float64(cols)*(1-centralThreshold/2))), int(math.Ceil(float64(rows)*(1-centralThreshold/2))),
+	)
+
 	type component struct {
 		rect  image.Rectangle
 		area  int
 		label int
 	}
 
+	mask := gocv.NewMat()
+	defer closeMat(&mask)
+
+	// 面積フィルタ → 枠線除去 → 中央判定 を「上位2個に絞る前」に行う。
+	// (枠線が面積上位2個を占有して本物の数字を押し出すのを防ぐため、先に枠線を落とす)
 	var components []component
 	for i := 1; i < count; i++ {
 		area := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_AREA)))
-		if area < int(float64(mat.Rows()*mat.Cols())*0.05) {
+		if float64(area) < cellArea*areaRatio {
 			continue
 		}
 		x := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_LEFT)))
@@ -177,6 +191,14 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 		rect := image.Rect(x, y, x+w, y+h)
 		// 上下両方 or 左右両方に接する成分は枠線とみなして除去
 		if isFrameComponent(rect, cols, rows) {
+			continue
+		}
+		err := gocv.InRangeWithScalar(labelsMat, gocv.Scalar{float64(i), 0, 0, 0}, gocv.Scalar{float64(i), 0, 0, 0}, &mask)
+		if err != nil {
+			return nil, err
+		}
+		// 中央に触れない成分(残った枠線)を除去
+		if gocv.CountNonZero(mask.Region(centralRect)) == 0 {
 			continue
 		}
 		components = append(components, component{rect: rect, area: area, label: i})
