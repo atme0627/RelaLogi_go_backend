@@ -177,6 +177,11 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 		h := int(statsMat.GetIntAt(i, int(gocv.CC_STAT_HEIGHT)))
 
 		components = append(components, component{rect: image.Rect(x, y, x+w, y+h), area: area, label: i})
+		rect := image.Rect(x, y, x+w, y+h)
+		// 上下両方 or 左右両方に接する成分は枠線とみなして除去
+		if isFrameComponent(rect, cols, rows) {
+			continue
+		}
 	}
 	sort.Slice(components, func(i, j int) bool { return components[i].area > components[j].area })
 	digitsCount := int(math.Min(float64(len(components)), 2))
@@ -235,6 +240,19 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 	}
 
 	return result, nil
+}
+
+// isFrameComponent は成分が「上下両方 or 左右両方に接する＝枠線」かを判定する。
+// 数字は小さくセルから両方向にははみ出さない前提。端の判定はセル寸法の frameEdgeRatio を許容。
+func isFrameComponent(r image.Rectangle, cols, rows int) bool {
+	const frameEdgeRatio = 0.10
+	tx := float64(cols) * frameEdgeRatio
+	ty := float64(rows) * frameEdgeRatio
+	top := float64(r.Min.Y) <= ty
+	bottom := float64(r.Max.Y) >= float64(rows)-ty
+	left := float64(r.Min.X) <= tx
+	right := float64(r.Max.X) >= float64(cols)-tx
+	return (top && bottom) || (left && right)
 }
 
 func closeMat(mat *gocv.Mat) {
