@@ -215,28 +215,14 @@ func (o OpenCVImageProcessor) PreprocessAndSplitCellToDigits(cell entity.Encoded
 			return nil, err
 		}
 
-		//連結成分がグレースケールで実際に黒い場所か判断。空白セル時に、ほぼ白いのにノイズを拾う場合を除去
-		meanMat := gocv.NewMat()
-		defer closeMat(&meanMat)
-		stdDevMat := gocv.NewMat()
-		defer closeMat(&stdDevMat)
-		err = gocv.MeanStdDevWithMask(grayMat, &meanMat, &stdDevMat, mask)
-		if err != nil {
-			return nil, err
-		}
-		mean := meanMat.GetDoubleAt(0, 0)
-		if mean > 128 {
-			continue
-		}
-
-		//連結成分がセルの中央に触れているかを判断。生き残った枠線を除去
-		cols := float64(labelsMat.Cols())
-		rows := float64(labelsMat.Rows())
-		centralRect := image.Rect(int(math.Ceil(cols*(centralThreshold/2))), int(math.Ceil(rows*(centralThreshold/2))), int(math.Ceil(cols*(1-centralThreshold/2))), int(math.Ceil(rows*(1-centralThreshold/2))))
-		centerCount := gocv.CountNonZero(mask.Region(centralRect))
-		if centerCount == 0 {
-			continue
-		}
+		// 数字の bbox + 周囲 digitPad だけを切り出して OCR に渡す(セル全面だと余白が大きく認識が不安定)
+		x0 := max(0, c.rect.Min.X-digitPad)
+		y0 := max(0, c.rect.Min.Y-digitPad)
+		x1 := min(cols, c.rect.Max.X+digitPad)
+		y1 := min(rows, c.rect.Max.Y+digitPad)
+		region := mask.Region(image.Rect(x0, y0, x1, y1))
+		digit := region.Clone()
+		region.Close()
 
 		err = gocv.BitwiseNot(digit, &digit)
 		if err != nil {
