@@ -139,6 +139,7 @@ func Test_SplitHintToCells(t *testing.T) {
 		in       in
 		expected expected
 	}{
+		// 角セル[0][0]は左/上はクランプ、右/下に overlap(セル50pxの10%=5px)ぶん広がる→55x55
 		"正常系": {
 			in{
 				encodedImage: sampleImage,
@@ -146,8 +147,8 @@ func Test_SplitHintToCells(t *testing.T) {
 				width:        3,
 			},
 			expected{
-				height: 50,
-				width:  50,
+				height: 55,
+				width:  55,
 			},
 		},
 	}
