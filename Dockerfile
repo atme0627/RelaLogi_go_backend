@@ -8,5 +8,6 @@ COPY . .
 ENV CGO_ENABLED=1
 
 RUN apt-get update && apt-get install -y libopencv-dev libtesseract-dev pkg-config libleptonica-dev tesseract-ocr-eng
-
 RUN go build -o app/server ./cmd
+
+CMD ["./app/server"]
