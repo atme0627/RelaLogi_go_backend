@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/atme0627/RelaLogi_go_backend/controller"
 	infra "github.com/atme0627/RelaLogi_go_backend/infra/puzzle"
@@ -25,5 +26,10 @@ func main() {
 		Puzzle: puzzleHandler,
 	}
 	e := rest.NewEngine(handlers)
-	log.Fatal(e.Run(":8080"))
+
+	PORT := os.Getenv("PORT")
+	if PORT == "" {
+		PORT = "8080"
+	}
+	log.Fatal(e.Run(":" + PORT))
 }
