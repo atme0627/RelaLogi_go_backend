@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"os"
 
+	"github.com/atme0627/RelaLogi_go_backend/config"
 	"github.com/atme0627/RelaLogi_go_backend/controller"
 	infra "github.com/atme0627/RelaLogi_go_backend/infra/puzzle"
 	"github.com/atme0627/RelaLogi_go_backend/transport/rest"
@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+	cfg := config.Load()
+
 	healthController := controller.NewHealthController()
 	healthHandler := handler.NewHandler(healthController)
 
@@ -25,11 +27,7 @@ func main() {
 		Health: healthHandler,
 		Puzzle: puzzleHandler,
 	}
-	e := rest.NewEngine(handlers)
+	e := rest.NewEngine(handlers, cfg)
 
-	PORT := os.Getenv("PORT")
-	if PORT == "" {
-		PORT = "8080"
-	}
-	log.Fatal(e.Run(":" + PORT))
+	log.Fatal(e.Run(":" + cfg.Port))
 }
